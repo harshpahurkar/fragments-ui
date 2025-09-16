@@ -15,6 +15,7 @@
   "author": "Harsh Pahurkar",
   "license": "UNLICENSED",
   "dependencies": {
+    "dotenv": "^17.2.2",
     "oidc-client-ts": "^3.3.0"
   },
   "devDependencies": {
