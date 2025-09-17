@@ -1,30 +1,38 @@
 // src/api.js
+export async function getUserFragments(user, { expand = false } = {}) {
+  const base = process.env.API_URL;
+  const url = `${base}/v1/fragments${expand ? "?expand=1" : ""}`;
 
-// fragments microservice API to use, defaults to localhost:8080 if not set in env
-const apiUrl = process.env.API_URL || "http://localhost:8080";
-
-/**
- * Given an authenticated user, request all fragments for this user from the
- * fragments microservice (currently only running locally). We expect a user
- * to have an `idToken` attached, so we can send that along with the request.
- */
-export async function getUserFragments(user) {
-  console.log("Requesting user fragments data...");
+  const headers = user.authorizationHeaders();
   try {
-    const fragmentsUrl = new URL("/v1/fragments", apiUrl);
-    const res = await fetch(fragmentsUrl, {
-      // Generate headers with the proper Authorization bearer token to pass.
-      // We are using the `authorizationHeaders()` helper method we defined
-      // earlier, to automatically attach the user's ID token.
-      headers: user.authorizationHeaders(),
-    });
+    const res = await fetch(url, { method: "GET", headers });
+    const text = await res.text();
     if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
+      console.error("GET /v1/fragments failed", {
+        status: res.status,
+        statusText: res.statusText,
+        url,
+        response: safeJson(text),
+      });
+      throw new Error(`GET /v1/fragments -> ${res.status}`);
     }
-    const data = await res.json();
-    console.log("Successfully got user fragments data", { data });
+    const data = safeJson(text);
+    console.log("GET /v1/fragments ok", data);
     return data;
   } catch (err) {
-    console.error("Unable to call GET /v1/fragments", { err });
+    console.error("Unable to call GET /v1/fragments", {
+      url,
+      headersPresent: !!headers.Authorization,
+      err: String(err),
+    });
+    throw err;
+  }
+}
+
+function safeJson(s) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return s;
   }
 }
