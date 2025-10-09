@@ -4,12 +4,21 @@ import { UserManager } from 'oidc-client-ts';
 
 // Prefer using the Cognito Hosted UI domain (e.g. your-domain.auth.us-east-1.amazoncognito.com)
 // Set AWS_COGNITO_AUTH_DOMAIN in your environment to that domain (without https://)
+// Helper to compute redirect URI at runtime when not provided at build time
+function defaultRedirectUri() {
+  if (typeof window !== 'undefined') return `${window.location.origin}/callback`;
+  return process.env.OAUTH_SIGN_IN_REDIRECT_URL;
+}
+
 const cognitoAuthConfig = {
   authority: process.env.AWS_COGNITO_AUTH_DOMAIN
-    ? `https://${process.env.AWS_COGNITO_AUTH_DOMAIN}`
+    ? // allow either a full URL (https://...) or a bare domain
+      process.env.AWS_COGNITO_AUTH_DOMAIN.startsWith('http')
+      ? process.env.AWS_COGNITO_AUTH_DOMAIN
+      : `https://${process.env.AWS_COGNITO_AUTH_DOMAIN}`
     : `https://cognito-idp.us-east-1.amazonaws.com/${process.env.AWS_COGNITO_POOL_ID}`,
   client_id: process.env.AWS_COGNITO_CLIENT_ID,
-  redirect_uri: process.env.OAUTH_SIGN_IN_REDIRECT_URL,
+  redirect_uri: process.env.OAUTH_SIGN_IN_REDIRECT_URL || defaultRedirectUri(),
   response_type: 'code',
   scope: 'openid email phone',
   // no revoke of "access token" (https://github.com/authts/oidc-client-ts/issues/262)
@@ -37,9 +46,10 @@ function formatUser(user) {
     email: user.profile.email,
     idToken: user.id_token,
     accessToken: user.access_token,
+    // Use access_token for Authorization header by default (backends expect access tokens)
     authorizationHeaders: (type = 'application/json') => ({
       'Content-Type': type,
-      Authorization: `Bearer ${user.id_token}`,
+      Authorization: `Bearer ${user.access_token}`,
     }),
   };
 }

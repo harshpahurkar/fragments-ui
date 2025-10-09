@@ -50,3 +50,35 @@ Notes
 
 - Ensure the Cognito App Client is configured with the redirect URL you set in `OAUTH_SIGN_IN_REDIRECT_URL` and that the domain is enabled for the Hosted UI.
 - The app expects the fragments server to be reachable at `API_URL` and to accept `Authorization: Bearer <token>` headers.
+
+Configuring the UI to point at an EC2-hosted fragments server
+
+You can configure which backend the UI talks to in three ways (priority order):
+
+1. Build-time env (`API_URL`) — set this in your environment or `.env` before starting Parcel. Example:
+
+```
+API_URL=https://ec2-3-123-45-67.compute-1.amazonaws.com
+```
+
+2. Runtime global — set `window.__API_URL__` before the app module loads. Useful when the page is rendered by a server that knows the backend host.
+
+```html
+<script>
+  window.__API_URL__ = 'https://ec2-3-123-45-67.compute-1.amazonaws.com';
+</script>
+<script type="module" src="./app.js"></script>
+```
+
+3. Meta tag — add a meta tag to `index.html` to instruct the app at runtime:
+
+```html
+<meta name="api-url" content="https://ec2-3-123-45-67.compute-1.amazonaws.com" />
+```
+
+If none of the above are set, the app will default to `http://localhost:9000` when running on `localhost`, or derive a host using the UI's origin and port 9000 for other hosts.
+
+Configuring Cognito
+
+- Set `AWS_COGNITO_AUTH_DOMAIN` to your Cognito Hosted UI domain (or a full URL). If you don't provide `OAUTH_SIGN_IN_REDIRECT_URL`, the app will default to `${window.location.origin}/callback` at runtime.
+- Make sure your Cognito App Client allows the redirect URI you configure and that the Hosted UI domain is enabled.

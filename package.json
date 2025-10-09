@@ -8,8 +8,8 @@
     "dev": "parcel src/index.html --port 1234",
     "build": "parcel build src/index.html",
     "lint": "eslint \"src/**/*.js\"",
-  "format": "prettier --write \"**/*.js\" \"src/**/*.html\" README.md",
-  "format:check": "prettier --check \"**/*.js\" \"src/**/*.html\" README.md",
+    "format": "prettier --write \"**/*.js\" \"src/**/*.html\" README.md",
+    "format:check": "prettier --check \"**/*.js\" \"src/**/*.html\" README.md",
     "test:smoke": "node ./tests/smoke.js"
   },
   "repository": {
@@ -25,7 +25,30 @@
   "devDependencies": {
     "parcel": "^2.15.4",
     "eslint": "^8.45.0",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,html}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.html --port 1234",
+    "build": "parcel build src/index.html",
+    "lint": "eslint \"src/**/*.js\"",
+    "format": "prettier --write \"**/*.js\" \"src/**/*.html\" README.md",
+    "format:check": "prettier --check \"**/*.js\" \"src/**/*.html\" README.md",
+    "test:smoke": "node ./tests/smoke.js",
+    "prepare": "husky install"
   },
   "keywords": [],
   "bugs": {
