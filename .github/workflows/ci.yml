@@ -1,0 +1,49 @@
+# .github/workflows/ci.yml
+
+# Continuous Integration (CI) Workflow
+name: ci
+
+# This workflow will run whenever we push commits to the `main` branch, or
+# whenever there's a pull request to the `main` branch. See:
+# [URL documentation]
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    # Give your job a name that will show up in the GitHub Actions web UI
+    name: ESLint
+    # We'll run this on a Linux (Ubuntu) VM, since we'll deploy on Linux too.
+    runs-on: ubuntu-latest
+    # We run these steps one after the other, and if any fail, we stop the process
+    steps:
+      # [URL documentation]
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # [URL documentation]
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          # Use node LTS http://localhost:8080
+          node-version: 'lts/*'
+          # Cache npm dependencies so they don't have to be downloaded next time - http://localhost:8080
+          cache: 'npm'
+
+      - name: Install node dependencies
+        # Use `ci` vs. `install`, see http://localhost:8080
+        run: npm ci
+
+      - name: Run Prettier check
+        run: npm run format:check
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Run ESLint
+        run: npm run lint

@@ -1,15 +1,19 @@
 // src/auth.js
 
-import { UserManager } from "oidc-client-ts";
+import { UserManager } from 'oidc-client-ts';
 
+// Prefer using the Cognito Hosted UI domain (e.g. your-domain.auth.us-east-1.amazoncognito.com)
+// Set AWS_COGNITO_AUTH_DOMAIN in your environment to that domain (without https://)
 const cognitoAuthConfig = {
-  authority: `https://cognito-idp.us-east-1.amazonaws.com/${process.env.AWS_COGNITO_POOL_ID}`,
+  authority: process.env.AWS_COGNITO_AUTH_DOMAIN
+    ? `https://${process.env.AWS_COGNITO_AUTH_DOMAIN}`
+    : `https://cognito-idp.us-east-1.amazonaws.com/${process.env.AWS_COGNITO_POOL_ID}`,
   client_id: process.env.AWS_COGNITO_CLIENT_ID,
   redirect_uri: process.env.OAUTH_SIGN_IN_REDIRECT_URL,
-  response_type: "code",
-  scope: "phone openid email",
+  response_type: 'code',
+  scope: 'openid email phone',
   // no revoke of "access token" (https://github.com/authts/oidc-client-ts/issues/262)
-  revokeTokenTypes: ["refresh_token"],
+  revokeTokenTypes: ['refresh_token'],
   // no silent renew via "prompt=none" (https://github.com/authts/oidc-client-ts/issues/366)
   automaticSilentRenew: false,
 };
@@ -26,15 +30,15 @@ export async function signIn() {
 
 // Create a simplified view of the user, with an extra method for creating the auth headers
 function formatUser(user) {
-  console.log("User Authenticated", { user });
+  console.log('User Authenticated', { user });
   return {
     // If you add any other profile scopes, you can include them here
-    username: user.profile["cognito:username"],
+    username: user.profile['cognito:username'],
     email: user.profile.email,
     idToken: user.id_token,
     accessToken: user.access_token,
-    authorizationHeaders: (type = "application/json") => ({
-      "Content-Type": type,
+    authorizationHeaders: (type = 'application/json') => ({
+      'Content-Type': type,
       Authorization: `Bearer ${user.id_token}`,
     }),
   };
@@ -42,7 +46,7 @@ function formatUser(user) {
 
 export async function getUser() {
   // First, check if we're handling a signin redirect callback (e.g., is ?code=... in URL)
-  if (window.location.search.includes("code=")) {
+  if (window.location.search.includes('code=')) {
     const user = await userManager.signinCallback();
     // Remove the auth code from the URL without triggering a reload
     window.history.replaceState({}, document.title, window.location.pathname);

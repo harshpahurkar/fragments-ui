@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel src/index.html --port 1234",
-    "build": "parcel build src/index.html"
+    "build": "parcel build src/index.html",
+    "lint": "eslint \"src/**/*.js\"",
+  "format": "prettier --write \"**/*.js\" \"src/**/*.html\" README.md",
+  "format:check": "prettier --check \"**/*.js\" \"src/**/*.html\" README.md",
+    "test:smoke": "node ./tests/smoke.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +23,9 @@
     "oidc-client-ts": "^3.3.0"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "parcel": "^2.15.4",
+    "eslint": "^8.45.0",
+    "prettier": "^2.8.8"
   },
   "keywords": [],
   "bugs": {
