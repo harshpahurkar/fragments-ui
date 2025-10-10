@@ -11,7 +11,16 @@ const app = express();
 const indexPath = path.join(__dirname, '..', 'src', 'index.html');
 let indexHtml = fs.readFileSync(indexPath, 'utf8');
 
+// Serve static assets from dist if present, otherwise from src
+app.use(express.static(path.join(__dirname, '..', 'dist')));
+app.use(express.static(path.join(__dirname, '..', 'src')));
+
+// For navigation requests (HTML pages), inject the meta tag so the app can pick up API_URL at runtime.
 app.use((req, res, next) => {
+  // Only handle requests that accept HTML (to avoid returning HTML for JS/CSS requests)
+  const accept = req.headers.accept || '';
+  if (!accept.includes('text/html')) return next();
+
   // Determine API URL based on request host
   const host = req.headers.host; // includes port
   const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
@@ -23,10 +32,6 @@ app.use((req, res, next) => {
   res.setHeader('Content-Type', 'text/html');
   res.send(injected);
 });
-
-// Serve static assets from dist if present, otherwise from src
-app.use(express.static(path.join(__dirname, '..', 'dist')));
-app.use(express.static(path.join(__dirname, '..', 'src')));
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
