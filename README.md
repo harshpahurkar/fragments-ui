@@ -82,3 +82,13 @@ Configuring Cognito
 
 - Set `AWS_COGNITO_AUTH_DOMAIN` to your Cognito Hosted UI domain (or a full URL). If you don't provide `OAUTH_SIGN_IN_REDIRECT_URL`, the app will default to `${window.location.origin}/callback` at runtime.
 - Make sure your Cognito App Client allows the redirect URI you configure and that the Hosted UI domain is enabled.
+
+Post-logout landing page
+
+- This repo adds a small `src/post-logout.html` page which the app uses as the default
+  `post_logout_redirect_uri` after signing out. To avoid a provider 400 error, register
+  the exact URL (for example `http://localhost:1234/post-logout.html`) in your Cognito
+  App Client's Sign out URL(s).
+
+- If you prefer a different path, set `OAUTH_SIGN_OUT_REDIRECT_URL` in your environment
+  or change the `post_logout_redirect_uri` in `src/auth.js`.
