@@ -117,7 +117,7 @@ function formatUser(user) {
     accessToken,
     authorizationHeaders: (type = 'application/json') => ({
       'Content-Type': type,
-      Authorization: accessToken ? `Bearer ${accessToken}` : '',
+      Authorization: idToken ? `Bearer ${idToken}` : '',
     }),
   };
 }
