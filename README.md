@@ -92,3 +92,36 @@ Post-logout landing page
 
 - If you prefer a different path, set `OAUTH_SIGN_OUT_REDIRECT_URL` in your environment
   or change the `post_logout_redirect_uri` in `src/auth.js`.
+
+## Docker image (build & run)
+
+This repo includes a multi-stage `Dockerfile` that builds the app with Parcel and produces a small
+nginx-based production image serving the built static files.
+
+Build the image locally (replace `<your-dockerhub-username>` with your Docker Hub user):
+
+```powershell
+# from repository root
+docker build -t <your-dockerhub-username>/fragments-ui:latest .
+```
+
+Run the image locally (bind to port 8080 to avoid conflicts):
+
+```powershell
+docker run --rm -p 8080:80 <your-dockerhub-username>/fragments-ui:latest
+# then open http://localhost:8080 in a browser
+```
+
+## Push to Docker Hub (manual step)
+
+Log in and push the image to your Docker Hub account (you must create the repository on Docker Hub or enable automatic repo creation):
+
+```powershell
+docker login
+docker push <your-dockerhub-username>/fragments-ui:latest
+```
+
+Notes:
+
+- The final image serves files with nginx on port 80. When running locally we map container port 80 to a host port (for example 8080).
+- `.dockerignore` is included to avoid copying `node_modules`, `dist` and other development artifacts into the build context.

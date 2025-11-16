@@ -72,7 +72,6 @@ async function init() {
   }
   const userFragments = await getUserFragments(user);
   console.log('fragments', userFragments);
-
   // Update the UI to welcome the user
   userSection.hidden = false;
 
@@ -83,24 +82,108 @@ async function init() {
   loginBtn.disabled = true;
   if (logoutBtn) logoutBtn.style.display = 'inline-block';
 
+  // Helper to render fragments list into the UI
+  const fragmentsListEl = document.getElementById('fragments-list');
+  async function renderFragments() {
+    try {
+      setStatus('Loading fragments...');
+      const data = await getUserFragments(user, { expand: true });
+      // Normalize different possible responses
+      let fragments = [];
+      if (!data) fragments = [];
+      else if (Array.isArray(data)) fragments = data;
+      else if (Array.isArray(data.fragments)) fragments = data.fragments;
+      else if (Array.isArray(data.results)) fragments = data.results;
+      else fragments = data;
+
+      if (!fragments || fragments.length === 0) {
+        fragmentsListEl.innerText = '(no fragments)';
+        setStatus('No fragments found');
+        return;
+      }
+
+      // Build an HTML list of fragments and metadata
+      const rows = fragments.map((f) => {
+        // f might be an id string or an object
+        const id = f.id || f;
+        const contentType = f.contentType || f.type || f.content_type || '';
+        const size = f.size || f.byteSize || f.length || '';
+        const created = f.created || f.createdAt || f.created_ts || '';
+        const ownerId = f.ownerId || f.owner || f.userid || '';
+        return `
+          <div style="border-bottom:1px solid #ddd; padding:6px 0">
+            <div><strong>id:</strong> ${id}</div>
+            <div><strong>owner:</strong> ${ownerId}</div>
+            <div><strong>contentType:</strong> ${contentType}</div>
+            <div><strong>size:</strong> ${size}</div>
+            <div><strong>created:</strong> ${created}</div>
+          </div>`;
+      });
+      fragmentsListEl.innerHTML = rows.join('\n');
+      setStatus(`Loaded ${fragments.length} fragments`);
+    } catch (err) {
+      console.error('Error loading fragments', err);
+      fragmentsListEl.innerText = '(error loading fragments)';
+      setStatus('Error loading fragments (see console)');
+    }
+  }
+
+  // initial render
+  renderFragments();
+
+  // Wire refresh button
+  const refreshBtn = document.getElementById('refresh-fragments-button');
+  refreshBtn?.addEventListener('click', async () => {
+    await renderFragments();
+  });
+
   // Wire create fragment UI
   const createBtn = document.getElementById('create-fragment-button');
   createBtn?.addEventListener('click', async () => {
     const contentEl = document.getElementById('fragment-content');
-    if (!contentEl) return;
+    const typeEl = document.getElementById('fragment-type');
+    if (!contentEl || !typeEl) return;
     const content = contentEl.value.trim();
-    if (!content) return alert('Please enter some text for the fragment');
-    try {
-      const created = await createFragment(user, {
-        content,
-        contentType: 'text/plain',
-      });
-      console.log('Created fragment:', created);
-      alert('Fragment created');
-      contentEl.value = '';
-    } catch (err) {
-      console.error(err);
-      alert('Failed to create fragment. See console for details.');
+    const contentType = typeEl.value || 'text/plain';
+    if (!content) return alert('Please enter some content for the fragment');
+
+    // If the user selected application/json, validate it is valid JSON
+    if (contentType === 'application/json') {
+      try {
+        // Try to parse to make sure it's valid JSON. Then send the canonical string.
+        const parsed = JSON.parse(content);
+        // Re-stringify to avoid loose formatting issues
+        try {
+          // Use pretty printing for readability on server side if stored
+          const canonical = JSON.stringify(parsed);
+          // send canonical
+          const created = await createFragment(user, { content: canonical, contentType });
+          console.log('Created fragment:', created);
+          alert('Fragment created');
+          contentEl.value = '';
+          await renderFragments();
+        } catch (e) {
+          // fallback to raw string if stringify fails
+          const created = await createFragment(user, { content, contentType });
+          console.log('Created fragment (raw):', created);
+          alert('Fragment created');
+          contentEl.value = '';
+          await renderFragments();
+        }
+      } catch (e) {
+        return alert('Content must be valid JSON when content type application/json is selected');
+      }
+    } else {
+      try {
+        const created = await createFragment(user, { content, contentType });
+        console.log('Created fragment:', created);
+        alert('Fragment created');
+        contentEl.value = '';
+        await renderFragments();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to create fragment. See console for details.');
+      }
     }
   });
 }

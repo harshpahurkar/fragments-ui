@@ -20,16 +20,31 @@
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
       <form id="create-fragment-form">
-        <label for="fragment-content">Create a new text fragment</label><br />
+        <label for="fragment-content">Create a new fragment</label><br />
+        <select id="fragment-type">
+          <option value="text/plain" selected>text/plain</option>
+          <option value="text/markdown">text/markdown</option>
+          <option value="application/json">application/json</option>
+        </select>
+        <br />
         <textarea
           id="fragment-content"
-          rows="4"
+          rows="6"
           cols="60"
-          placeholder="Enter text fragment"
-        ></textarea
-        ><br />
+          placeholder="Enter fragment content (plain text or JSON)"
+        >
+        </textarea>
+        <br />
         <button id="create-fragment-button" type="button">Create Fragment</button>
+        <button id="refresh-fragments-button" type="button" style="margin-left: 8px">
+          Refresh List
+        </button>
       </form>
+
+      <section id="fragments-section" style="margin-top: 16px">
+        <h3>Your fragments</h3>
+        <div id="fragments-list">(no fragments yet)</div>
+      </section>
     </section>
   </body>
 </html>
