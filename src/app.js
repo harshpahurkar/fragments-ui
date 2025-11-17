@@ -159,14 +159,91 @@ async function init() {
           // send canonical
           const created = await createFragment(user, { content: canonical, contentType });
           console.log('Created fragment:', created);
-          alert('Fragment created');
+          if (created && created.headers && created.headers.Location) {
+            const loc = created.headers.Location;
+            alert(`Fragment created\nLocation: ${loc}`);
+            // show in UI and add open/copy buttons
+            try {
+              const lastEl = document.getElementById('last-created');
+              if (lastEl) {
+                lastEl.innerHTML = `Created: <a href="${loc}" target="_blank">${loc}</a> <button id="copy-loc">Copy</button> <button id="view-html">View HTML</button>`;
+                const copyBtn = document.getElementById('copy-loc');
+                if (copyBtn) copyBtn.onclick = () => navigator.clipboard?.writeText(loc);
+                const viewBtn = document.getElementById('view-html');
+                if (viewBtn)
+                  viewBtn.onclick = async () => {
+                    try {
+                      setStatus('Fetching rendered HTML...');
+                      const fetchHeaders = { ...user.authorizationHeaders(), Accept: 'text/html' };
+                      const res = await fetch(loc, { method: 'GET', headers: fetchHeaders });
+                      if (!res.ok) {
+                        alert('Failed to fetch rendered HTML: ' + res.status);
+                        setStatus('Failed to fetch rendered HTML');
+                        return;
+                      }
+                      const html = await res.text();
+                      const blob = new Blob([html], { type: 'text/html' });
+                      const url = URL.createObjectURL(blob);
+                      window.open(url, '_blank');
+                      setStatus('Loaded rendered HTML');
+                    } catch (e) {
+                      console.error('Error fetching rendered HTML', e);
+                      alert('Error fetching rendered HTML. See console.');
+                      setStatus('Error fetching rendered HTML');
+                    }
+                  };
+              }
+            } catch (e) {
+              // ignore
+            }
+          } else {
+            alert('Fragment created');
+          }
           contentEl.value = '';
           await renderFragments();
         } catch (e) {
           // fallback to raw string if stringify fails
           const created = await createFragment(user, { content, contentType });
           console.log('Created fragment (raw):', created);
-          alert('Fragment created');
+          if (created && created.headers && created.headers.Location) {
+            const loc = created.headers.Location;
+            alert(`Fragment created\nLocation: ${loc}`);
+            try {
+              const lastEl = document.getElementById('last-created');
+              if (lastEl) {
+                lastEl.innerHTML = `Created: <a href="${loc}" target="_blank">${loc}</a> <button id="copy-loc">Copy</button> <button id="view-html">View HTML</button>`;
+                const copyBtn = document.getElementById('copy-loc');
+                if (copyBtn) copyBtn.onclick = () => navigator.clipboard?.writeText(loc);
+                const viewBtn = document.getElementById('view-html');
+                if (viewBtn)
+                  viewBtn.onclick = async () => {
+                    try {
+                      setStatus('Fetching rendered HTML...');
+                      const fetchHeaders = { ...user.authorizationHeaders(), Accept: 'text/html' };
+                      const res = await fetch(loc, { method: 'GET', headers: fetchHeaders });
+                      if (!res.ok) {
+                        alert('Failed to fetch rendered HTML: ' + res.status);
+                        setStatus('Failed to fetch rendered HTML');
+                        return;
+                      }
+                      const html = await res.text();
+                      const blob = new Blob([html], { type: 'text/html' });
+                      const url = URL.createObjectURL(blob);
+                      window.open(url, '_blank');
+                      setStatus('Loaded rendered HTML');
+                    } catch (e) {
+                      console.error('Error fetching rendered HTML', e);
+                      alert('Error fetching rendered HTML. See console.');
+                      setStatus('Error fetching rendered HTML');
+                    }
+                  };
+              }
+            } catch (ex) {
+              // ignore
+            }
+          } else {
+            alert('Fragment created');
+          }
           contentEl.value = '';
           await renderFragments();
         }
@@ -177,7 +254,45 @@ async function init() {
       try {
         const created = await createFragment(user, { content, contentType });
         console.log('Created fragment:', created);
-        alert('Fragment created');
+        if (created && created.headers && created.headers.Location) {
+          const loc = created.headers.Location;
+          alert(`Fragment created\nLocation: ${loc}`);
+          try {
+            const lastEl = document.getElementById('last-created');
+            if (lastEl) {
+              lastEl.innerHTML = `Created: <a href="${loc}" target="_blank">${loc}</a> <button id="copy-loc">Copy</button> <button id="view-html">View HTML</button>`;
+              const copyBtn = document.getElementById('copy-loc');
+              if (copyBtn) copyBtn.onclick = () => navigator.clipboard?.writeText(loc);
+              const viewBtn = document.getElementById('view-html');
+              if (viewBtn)
+                viewBtn.onclick = async () => {
+                  try {
+                    setStatus('Fetching rendered HTML...');
+                    const fetchHeaders = { ...user.authorizationHeaders(), Accept: 'text/html' };
+                    const res = await fetch(loc, { method: 'GET', headers: fetchHeaders });
+                    if (!res.ok) {
+                      alert('Failed to fetch rendered HTML: ' + res.status);
+                      setStatus('Failed to fetch rendered HTML');
+                      return;
+                    }
+                    const html = await res.text();
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                    setStatus('Loaded rendered HTML');
+                  } catch (e) {
+                    console.error('Error fetching rendered HTML', e);
+                    alert('Error fetching rendered HTML. See console.');
+                    setStatus('Error fetching rendered HTML');
+                  }
+                };
+            }
+          } catch (ex) {
+            // ignore
+          }
+        } else {
+          alert('Fragment created');
+        }
         contentEl.value = '';
         await renderFragments();
       } catch (err) {

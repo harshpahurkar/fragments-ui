@@ -115,10 +115,18 @@ function formatUser(user) {
     email,
     idToken,
     accessToken,
-    authorizationHeaders: (type = 'application/json') => ({
-      'Content-Type': type,
-      Authorization: idToken ? `Bearer ${idToken}` : '',
-    }),
+    // TEMPORARY: prefer id token for Authorization header to accommodate backends
+    // that validate the id_token instead of an access_token. Remove this change
+    // for production and prefer access_token as appropriate.
+    authorizationHeaders: (type = 'application/json') => {
+      // eslint-disable-next-line no-console
+      console.log('authorizationHeaders: choosing token (preferring id_token)');
+      const token = idToken ? idToken : accessToken ? accessToken : '';
+      return {
+        'Content-Type': type,
+        Authorization: token ? `Bearer ${token}` : '',
+      };
+    },
   };
 }
 

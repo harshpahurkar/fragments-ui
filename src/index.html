@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- runtime API host (useful to force EC2 host at runtime) -->
+    <meta name="api-url" content="http://ec2-3-84-104-142.compute-1.amazonaws.com:8080" />
     <title>Fragments UI</title>
     <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
     <script type="module" src="./app.js"></script>
@@ -40,6 +42,8 @@
           Refresh List
         </button>
       </form>
+
+      <div id="last-created" style="margin-top: 8px; color: #333">&nbsp;</div>
 
       <section id="fragments-section" style="margin-top: 16px">
         <h3>Your fragments</h3>

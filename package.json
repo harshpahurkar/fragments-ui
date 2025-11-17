@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "description": "Fragments UI testing web app",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel src/index.html --port 1234",
+  "test": "mocha --require @babel/register --recursive tests --exit",
+  "coverage": "nyc --reporter=lcov --reporter=text npm test",
+    "dev": "dotenv -e .env -- parcel src/index.html --port 1234",
     "build": "parcel build src/index.html",
     "lint": "eslint \"src/**/*.js\"",
     "format": "prettier --write \"**/*.js\" \"src/**/*.html\" README.md",
@@ -25,10 +26,18 @@
   },
   "devDependencies": {
     "parcel": "^2.15.4",
+    "dotenv-cli": "^7.2.0",
     "eslint": "^8.45.0",
     "prettier": "^2.8.8",
     "husky": "^8.0.0",
-    "lint-staged": "^13.0.0"
+    "lint-staged": "^13.0.0",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "nyc": "^15.1.0",
+    "sinon": "^15.0.0",
+    "@babel/register": "^7.22.5",
+    "@babel/core": "^7.22.9",
+    "@babel/preset-env": "^7.22.9"
   },
   "husky": {
     "hooks": {
