@@ -4,8 +4,7 @@
   "version": "0.0.1",
   "description": "Fragments UI testing web app",
   "scripts": {
-  "test": "mocha --require @babel/register --recursive tests --exit",
-  "coverage": "nyc --reporter=lcov --reporter=text npm test",
+    "test": "mocha --recursive tests --exit",
     "dev": "dotenv -e .env -- parcel src/index.html --port 1234",
     "build": "parcel build src/index.html",
     "lint": "eslint \"src/**/*.js\"",
@@ -34,10 +33,7 @@
     "mocha": "^10.2.0",
     "chai": "^4.3.7",
     "nyc": "^15.1.0",
-    "sinon": "^15.0.0",
-    "@babel/register": "^7.22.5",
-    "@babel/core": "^7.22.9",
-    "@babel/preset-env": "^7.22.9"
+    "sinon": "^15.0.0"
   },
   "husky": {
     "hooks": {
