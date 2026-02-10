@@ -41,14 +41,19 @@ Files changed/added
 - `src/auth.js` — use `AWS_COGNITO_AUTH_DOMAIN` if provided (Hosted UI)
 - `src/index.html` — added a small form to create text fragments
 - `src/app.js` — wired the form to call `createFragment`
-# fragments-ui
+# Fragments UI
 
-Fragments UI is a small demo/testing frontend for the Fragments backend.
+A sleek, auth-aware client for the Fragments API. It demonstrates Cognito Hosted UI auth flows and makes it simple to create and view fragments from a clean browser interface.
 
-Quick start
+## Highlights
+- Cognito Hosted UI auth with secure redirects
+- Configurable backend URL (local, staging, production)
+- Lightweight, fast Parcel build
 
-1. Copy `.env.example` to `.env` and fill values (Cognito domain, client id, redirect URLs, `API_URL`).
-2. Install deps and run dev server:
+## Tech stack
+Vanilla JS, Parcel, OIDC client, Mocha, Chai
+
+## Quick start
 
 ```powershell
 cd fragments-ui
@@ -56,19 +61,38 @@ npm install
 npm run dev
 ```
 
-Build for production
+## Production build
 
 ```powershell
 npm run build
 npm run start
 ```
 
-Notes
+## Environment
 
-- The app expects the backend at `API_URL` and uses `Authorization: Bearer <token>`.
-- `test:smoke` runs a small node script that exercises the running backend; run it after starting the backend.
-- The `start` script serves the `dist` build using `npx serve`.
+Copy `.env.example` to `.env` and fill in:
 
-Docker
+- `AWS_COGNITO_AUTH_DOMAIN`
+- `AWS_COGNITO_CLIENT_ID`
+- `OAUTH_SIGN_IN_REDIRECT_URL`
+- `OAUTH_SIGN_OUT_REDIRECT_URL`
+- `API_URL`
 
-Build and run the provided `Dockerfile` to serve the compiled assets with nginx.
+## Scripts
+
+```powershell
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run test
+npm run test:smoke
+```
+
+## Backend integration
+
+The UI sends authenticated requests to the API using `Authorization: Bearer <token>`. The backend must be running and reachable at `API_URL`.
+
+## Docker
+
+Build and run the included `Dockerfile` to serve the compiled assets with nginx in production.
