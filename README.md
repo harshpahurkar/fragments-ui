@@ -41,16 +41,19 @@ Files changed/added
 - `src/auth.js` — use `AWS_COGNITO_AUTH_DOMAIN` if provided (Hosted UI)
 - `src/index.html` — added a small form to create text fragments
 - `src/app.js` — wired the form to call `createFragment`
+
 # Fragments UI
 
 A sleek, auth-aware client for the Fragments API. It demonstrates Cognito Hosted UI auth flows and makes it simple to create and view fragments from a clean browser interface.
 
 ## Highlights
+
 - Cognito Hosted UI auth with secure redirects
 - Configurable backend URL (local, staging, production)
 - Lightweight, fast Parcel build
 
 ## Tech stack
+
 Vanilla JS, Parcel, OIDC client, Mocha, Chai
 
 ## Quick start
